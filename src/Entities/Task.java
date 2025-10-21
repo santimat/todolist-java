@@ -1,9 +1,9 @@
-package Entities;
+package entities;
 
 import java.time.LocalDate;
 
-import Enums.Priority;
-import Enums.Status;
+import enums.Priority;
+import enums.Status;
 
 public class Task {
   private Long id;

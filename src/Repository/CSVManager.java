@@ -1,4 +1,4 @@
-package Repository;
+package repository;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -8,18 +8,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
-import Entities.Task;
-import Entities.User;
+import entities.Task;
+import entities.User;
 
 public class CSVManager {
-  public static final String tasksPath = "./src/Archives/tasks.csv";
+  public static final String rootPath = "./src/archives/";
+  public static final String tasksPath = rootPath + "tasks.csv";
+  public static final String usersPath = rootPath + "users.csv";
   public static final String taskHeaders = "id,title,description,start_date,end_date,status,priority";
-  public static final String usersPath = "./src/Archives/users.csv";
   public static final String userHeaders = "username,password,salt";
 
   public static void createFiles() throws IOException {
-    File archivesFolder = new File("./src/Archives");
+    File archivesFolder = new File(rootPath);
     if (!archivesFolder.exists()) {
       if (archivesFolder.mkdirs()) {
         System.out.println("The 'Archives' folder was created");
@@ -51,52 +53,15 @@ public class CSVManager {
     }
   }
 
-  public static <K, V> Map<K, V> readFile(String path) throws IOException {
-    // Create an emptyResult to return it and avoid errors
-    Map<K, V> emptyResult = (Map<K, V>) new HashMap<>();
+  public static <K, V> Map<K, V> readFile(String path) {
+    Map<K, V> resultMap = new HashMap<>();
+    String fileName = path + ".csv";
+    Function<String[], V> csvConverter;
 
     if ("tasks".equalsIgnoreCase(path)) {
-      Map<Long, Task> tasks = new HashMap<>();
-      try (BufferedReader taskReader = new BufferedReader(new FileReader(tasksPath))) {
-        // Skip headers
-        taskReader.readLine();
-        String line;
-        int numberLine = 1;
-        while ((line = taskReader.readLine()) != null) {
-          numberLine++;
-          String[] taskCSV = line.split(",");
-          try {
-            Task task = Task.fromCSV(taskCSV);
-            tasks.put(task.getId(), task);
-          } catch (Exception e) {
-            System.out.println(e.getMessage() + "\ntasks.csv line number: " + numberLine);
-          }
-        }
-        return (Map<K, V>) tasks;
-      } catch (IOException e) {
-        throw new IOException("There was an error reading tasks. " + e.getMessage());
-      }
+      csvConverter = Task::fromCSV;
     } else if ("users".equalsIgnoreCase(path)) {
-      Map<String, User> users = new HashMap<>();
-      try (BufferedReader userReader = new BufferedReader(new FileReader(usersPath))) {
-        userReader.readLine();
-        String line;
-        int numberLine = 1;
-        while ((line = userReader.readLine()) != null) {
-          String[] userCSV = line.split(",");
-          try {
-            User user = User.fromCSV(userCSV);
-            users.put(user.getUsername(), user);
-          } catch (Exception e) {
-            System.out.println(e.getMessage() + "\nusers.csv line number: " + numberLine);
-          }
-        }
-        return (Map<K, V>) users;
-      } catch (IOException e) {
-        throw new IOException("There was an error reading users. " + e.getMessage());
-      }
     }
-    return emptyResult;
   }
 
   public static void writeFile(String path, String content) throws IOException {

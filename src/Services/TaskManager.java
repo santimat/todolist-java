@@ -1,6 +1,6 @@
-package Services;
+package services;
 
-import Entities.Task;
+import entities.Task;
 import java.util.HashMap;
 import java.util.Map;
 
