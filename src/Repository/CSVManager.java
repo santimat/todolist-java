@@ -26,7 +26,7 @@ public class CSVManager {
       }
     }
 
-    // Check if not exist tasks.csv and users.csv then create them
+    // Check if not exist tasks.csv then create it
     File tasksFile = new File(tasksPath);
     if (!tasksFile.exists()) {
       // Create tasks.csv file
@@ -42,9 +42,22 @@ public class CSVManager {
   public static Map<Long, Task> readFile() throws IOException {
     Map<Long, Task> resultMap = new HashMap<>();
     try (BufferedReader reader = new BufferedReader(new FileReader(tasksPath))) {
-
       // Skip headers
       reader.readLine();
+      String line;
+      // Read each line
+      while ((line = reader.readLine()) != null) {
+        // Extract info from CSV
+        String[] taskCSV = line.split(",");
+        try {
+          // Create an instance of Task from CSV data.
+          Task task = Task.fromCSV(taskCSV);
+          // Add to HashMap
+          resultMap.put(task.getId(), task);
+        } catch (Exception e) {
+          System.out.println(e.getMessage() + "in Task with the id: " + taskCSV[0]);
+        }
+      }
     } catch (IOException e) {
       throw new IOException("There was an error reading tasks. " + e.getMessage());
     }
